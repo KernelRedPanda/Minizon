@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mini Amazon</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@react-oauth/google@latest/dist/google.umd.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <div id="root" class="p-6 max-w-4xl mx-auto"></div>
+
+  <script type="text/javascript">
+    const { useState } = React;
+    const { GoogleLogin, GoogleOAuthProvider } = window['@react-oauth/google'];
+
+    function App() {
+      const [user, setUser] = useState(null);
+      const [role, setRole] = useState("buyer");
+      const [products, setProducts] = useState([
+        { id: 1, name: "Laptop", price: 800 },
+        { id: 2, name: "Phone", price: 400 },
+        { id: 3, name: "T-Shirt", price: 25 }
+      ]);
+      const [query, setQuery] = useState("");
+      const [newProduct, setNewProduct] = useState({ name: "", price: "" });
+
+      const handleLogin = (cred) => {
+        const userInfo = JSON.parse(atob(cred.credential.split('.')[1]));
+        setUser(userInfo);
+      };
+
+      const filteredProducts = products.filter(p =>
+        p.name.toLowerCase().includes(query.toLowerCase())
+      );
+
+      const handleAddProduct = () => {
+        const id = products.length + 1;
+        setProducts([...products, { id, ...newProduct, price: parseFloat(newProduct.price) }]);
+        setNewProduct({ name: "", price: "" });
+      };
+
+      if (!user) {
+        return (
+          <div className="text-center mt-20">
+            <h1 className="text-3xl font-bold mb-6">Login to Mini Amazon</h1>
+            <GoogleLogin onSuccess={handleLogin} onError={() => alert("Login Failed")} />
+          </div>
+        );
+      }
+
+      return (
+        <div>
+          <header className="flex justif
